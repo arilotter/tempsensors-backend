@@ -22,6 +22,7 @@ function ISODateString (date) {
     pad(date.getUTCMinutes()) + ':' +
     pad(date.getUTCSeconds()) + 'Z';
 }
+1482822624000
 
 const numbers = [0, 1, 2, 3, 4];
 const roomLabels = ['Johann\'s Room', 'Ari\'s Room', 'Jade\'s Room', 'Shop', 'Kitchen/Living Room', 'Bathrooms'];
@@ -57,10 +58,10 @@ jwtClient.authorize((err, tokens) => {
   app.all('/', (req, res) => {
     if (err) return console.log(err);
 
-    const utcSeconds = parseInt(req.query.lastUpdatedTime);
-    if (isNaN(utcSeconds)) return res.status(400).send('Invalid lastUpdatedTime');
+    const utcMilliseconds = parseInt(req.query.lastUpdatedTime);
+    if (isNaN(utcMilliseconds)) return res.status(400).send('lastUpdatedTime is not a number');
     const lastUpdatedTime = new Date(0);
-    lastUpdatedTime.setUTCSeconds(utcSeconds);
+    lastUpdatedTime.setUTCMilliseconds(utcMilliseconds);
 
     async.mapSeries(numbers, (index, callback) => {
       const id = calendarIDs[index];

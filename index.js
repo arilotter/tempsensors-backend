@@ -23,7 +23,7 @@ function ISODateString (date) {
     pad(date.getUTCSeconds()) + 'Z';
 }
 
-const numbers = [0, 1, 2, 3, 4, 5];
+const numbers = [0, 1, 2, 3, 4];
 const roomLabels = ['Johann\'s Room', 'Ari\'s Room', 'Jade\'s Room', 'Shop', 'Kitchen/Living Room', 'Bathrooms'];
 
 const calendarIDs = [
@@ -42,7 +42,7 @@ const session = require('express-session');
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(session({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+app.use(session({ secret: 'big goose', resave: false, saveUninitialized: false }));
 app.listen(8082);
 
 const jwtClient = new google.auth.JWT(
@@ -53,16 +53,18 @@ const jwtClient = new google.auth.JWT(
   null
 );
 
-app.all('/', function (req, res) {
-  jwtClient.authorize((err, tokens) => {
+jwtClient.authorize((err, tokens) => {
+  app.all('/', (req, res) => {
     if (err) return console.log(err);
 
-    const t = parseInt(req.query.lastUpdatedTime);
-    if (isNaN(t)) return res.status(400).send('Invalid lastUpdatedTime');
-    const lastUpdatedTime = new Date(t);
+    const utcSeconds = parseInt(req.query.lastUpdatedTime);
+    if (isNaN(utcSeconds)) return res.status(400).send('Invalid lastUpdatedTime');
+    const lastUpdatedTime = new Date(0);
+    lastUpdatedTime.setUTCSeconds(utcSeconds);
 
-    async.map(numbers, (index, callback) => {
+    async.mapSeries(numbers, (index, callback) => {
       const id = calendarIDs[index];
+      console.log(id);
       calendar.events.list({
         auth: jwtClient,
         calendarId: id,
